@@ -36,4 +36,4 @@ basekey | First part of consul key | "greenlock"
 
 <img src="https://raw.githubusercontent.com/sebastian-software/readable-code/master/assets/sebastiansoftware.png" alt="Sebastian Software GmbH Logo" width="250" height="200"/>
 
-Copyright 2015-2017<br/>[Sebastian Software GmbH](http://www.sebastian-software.de)
+Copyright 2017<br/>[Sebastian Software GmbH](http://www.sebastian-software.de)
