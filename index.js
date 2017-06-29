@@ -6,7 +6,8 @@ module.exports.create = function(options) {
     port: 8500,
     secure: false,
     ca: null,
-    basekey: "greenlock"
+    basekey: "greenlock",
+    simulate: process.env.GREENLOCK_SIMULATE === "true"
   }
   const finalOptions = Object.assign({}, defaults, options)
   const consulOptions = {
@@ -30,14 +31,29 @@ module.exports.create = function(options) {
     accountCerts: {}
   }
 
+  const simulationStore = {}
+
   function consulSave(key, value)
   {
-    return consul.kv.set(`${finalOptions.basekey}/${key}`, JSON.stringify(value))
+    const consulKey = `${finalOptions.basekey}/${key}`
+
+    if (finalOptions.simulate)
+    {
+      simulationStore[consulKey] = value
+      return Promise.resolve()
+    }
+
+    return consul.kv.set(consulKey, JSON.stringify(value))
   }
 
   function consulLoad(key)
   {
-    return consul.kv.get(`${finalOptions.basekey}/${key}`)
+    const consulKey = `${finalOptions.basekey}/${key}`
+
+    if (finalOptions.simulate)
+      return Promise.resolve(simulationStore[consulKey] || null)
+
+    return consul.kv.get(consulKey)
       .then((result) =>
       {
         try
