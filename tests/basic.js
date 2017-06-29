@@ -344,6 +344,7 @@ function run() {
     console.error(err.stack);
     console.error('');
     console.error('Failed Test #' + index);
+    process.exit(1);
   });
 }
 
