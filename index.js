@@ -6,8 +6,7 @@ module.exports.create = function(options) {
     port: 8500,
     secure: false,
     ca: null,
-    defaults: null,
-    promisify: false,
+    basekey: "greenlock"
   }
   const finalOptions = Object.assign({}, defaults, options)
   const consulOptions = {
@@ -33,12 +32,12 @@ module.exports.create = function(options) {
 
   function consulSave(key, value)
   {
-    return consul.kv.set(`greenlock/${key}`, JSON.stringify(value))
+    return consul.kv.set(`${finalOptions.basekey}/${key}`, JSON.stringify(value))
   }
 
   function consulLoad(key)
   {
-    return consul.kv.get(`greenlock/${key}`)
+    return consul.kv.get(`${finalOptions.basekey}/${key}`)
       .then((result) =>
       {
         try
