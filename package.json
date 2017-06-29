@@ -1,0 +1,34 @@
+{
+  "name": "le-store-consul",
+  "version": "1.0.0",
+  "description": "Greenlock store interface for Consul",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "node tests/basic.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sebastian-software/le-store-consul.git"
+  },
+  "keywords": [
+    "greenlock",
+    "letsencrypt",
+    "le-store",
+    "consul"
+  ],
+  "author": "Sebastian Fastner <s.fastner@sebastian-software.de>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sebastian-software/le-store-consul/issues"
+  },
+  "homepage": "https://github.com/sebastian-software/le-store-consul#readme",
+  "devDependencies": {
+    "bluebird": "^3.5.0"
+  },
+  "dependencies": {
+    "consul": "^0.29.0"
+  }
+}
