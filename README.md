@@ -1,4 +1,4 @@
-# le-store-consul<br/>[![Sponsored by][sponsor-img]][sponsor] [![Version][npm-version-img]][npm] [![Downloads][npm-downloads-img]][npm] [![Dependencies][deps-img]][deps]
+# le-store-consul<br/>[![Sponsored by][sponsor-img]][sponsor] [![Version][npm-version-img]][npm] [![Downloads][npm-downloads-img]][npm] [![Dependencies][deps-img]][deps] [![Build Status][travis-img]][travis]
 
 [sponsor-img]: https://img.shields.io/badge/Sponsored%20by-Sebastian%20Software-692446.svg
 [sponsor]: https://www.sebastian-software.de
@@ -7,6 +7,8 @@
 [npm]: https://www.npmjs.com/package/le-store-consul
 [npm-downloads-img]: https://img.shields.io/npm/dm/le-store-consul.svg
 [npm-version-img]: https://img.shields.io/npm/v/le-store-consul.svg
+[travis-img]: https://travis-ci.org/sebastian-software/le-store-consul.svg?branch=master
+[travis]: https://travis-ci.org/sebastian-software/le-store-consul
 
 [Greenlock](https://git.daplie.com/Daplie/node-greenlock) store interface for [Consul](https://www.consul.io/)
 
