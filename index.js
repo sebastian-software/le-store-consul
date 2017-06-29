@@ -240,9 +240,14 @@ module.exports.create = function(options) {
             ])
               .then(result => {
                 const account = result[0]
+                if (!account) {
+                  console.log("No account for", accountId)
+                  return cb(null, null)
+                }
+
                 account.keypair = result[1]
 
-                cb(null, account)
+                return cb(null, account)
               })
           })
           .catch(error => cb(error))
