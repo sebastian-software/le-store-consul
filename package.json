@@ -1,6 +1,6 @@
 {
   "name": "le-store-consul",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Greenlock store interface for Consul",
   "main": "index.js",
   "directories": {
