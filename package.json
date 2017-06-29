@@ -7,7 +7,8 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "node tests/basic.js"
+    "test": "cross-env GREENLOCK_SIMULATE=true node tests/basic.js",
+    "test:real": "node tests/basic.js"
   },
   "repository": {
     "type": "git",
@@ -26,7 +27,8 @@
   },
   "homepage": "https://github.com/sebastian-software/le-store-consul#readme",
   "devDependencies": {
-    "bluebird": "^3.5.0"
+    "bluebird": "^3.5.0",
+    "cross-env": "^5.0.1"
   },
   "dependencies": {
     "consul": "^0.29.0"
