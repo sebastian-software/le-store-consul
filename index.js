@@ -1,6 +1,11 @@
 'use strict'
 
+
 module.exports.create = function(options) {
+  const Promise = require("bluebird");
+
+  function emptyFnt() {}
+
   const defaults = {
     host: "localhost",
     port: 8500,
@@ -74,27 +79,23 @@ module.exports.create = function(options) {
 
   var accounts = {
       // Accounts
-      setKeypair: function(opts, keypair, cb)
+      setKeypairAsync: function(opts, keypair)
       {
         // opts.email // non-optional
         // opts.keypair // non-optional
 
         if (!opts.email) {
-            cb(new Error("MUST use email when setting Keypair"))
-            return
+            return Promise.reject(new Error("MUST use email when setting Keypair"))
         }
 
         if (!keypair.privateKeyJwk) {
-            cb(new Error("MUST use privateKeyJwk when setting Keypair"))
-            return
+            return Promise.reject(new Error("MUST use privateKeyJwk when setting Keypair"))
         }
         if (!keypair.privateKeyPem) {
-            cb(new Error("MUST use privateKeyPem when setting Keypair"))
-            return
+            return Promise.reject(new Error("MUST use privateKeyPem when setting Keypair"))
         }
         if (!keypair.publicKeyPem) {
-            cb(new Error("MUST use publicKeyPem when setting Keypair"))
-            return
+            return Promise.reject(new Error("MUST use publicKeyPem when setting Keypair"))
         }
 
         var accountId = crypto.createHash('sha256').update(keypair.publicKeyPem).digest('hex')
@@ -103,19 +104,11 @@ module.exports.create = function(options) {
           consulSave(`accountIndices/${accountId}`, accountId),
           consulSave(`accountIndices/${opts.email}`, accountId),
           consulSave(`accountKeypairs/${accountId}`, keypair)
-        ]).then(() =>
-        {
-          consulLoad(`accounts/${accountId}`)
-            .then((result) =>
-            {
-              cb(null, result)
-            })
-        })
-        .catch(error => cb(error))
+        ]).then(() => consulLoad(`accounts/${accountId}`))
       },
       
       // Accounts
-      checkKeypair: function(opts, cb)
+      checkKeypairAsync: function(opts)
       {
         // opts.email // optional
         // opts.accountId // optional
@@ -128,23 +121,19 @@ module.exports.create = function(options) {
           indexPromise = consulLoad(`accountIndices/${index}`)
         } else if (keypair.publicKeyJwk) {
           // TODO RSA.exportPublicPem(keypair)
-          cb(new Error("id from publicKeyJwk not yet implemented"))
-          return
+          return Promise.reject(new Error("id from publicKeyJwk not yet implemented"))
         } else if (opts.email) {
           indexPromise = consulLoad(`accountIndices/${opts.email}`)
         } else {
-          cb(new Error("MUST supply email or keypair.publicKeyPem or keypair.publicKeyJwk"))
-          return
+          return Promise.reject(new Error("MUST supply email or keypair.publicKeyPem or keypair.publicKeyJwk"))
         }
 
         return indexPromise
           .then((index) => consulLoad(`accountKeypairs/${index}`))
-          .then((result) => cb(null, result))
-          .catch(error => cb(error))
       },
 
       // Accounts
-      set: function(opts, reg, cb) {
+      setAsync: function(opts, reg) {
         // opts.email
         // reg.keypair
         // reg.receipt // response from acme server
@@ -158,22 +147,19 @@ module.exports.create = function(options) {
             indexPromise = consulLoad(`accountIndices/${index}`)
         } else if (keypair.publicKeyJwk) {
             // TODO RSA.exportPublicPem(keypair)
-            cb(new Error("id from publicKeyJwk not yet implemented"))
-            return
+            return Promise.reject(new Error("id from publicKeyJwk not yet implemented"))
         } else if (opts.email) {
             indexPromise = consulLoad(`accountIndices/${opts.email}`)
         } else {
-            cb(new Error("MUST supply email or keypair.publicKeyPem or keypair.publicKeyJwk"))
-            return
+            return Promise.reject(new Error("MUST supply email or keypair.publicKeyPem or keypair.publicKeyJwk"))
         }
 
-        indexPromise
+        return indexPromise
           .then(index => consulLoad(`accountIndices/${index}`))
           .then(accountId =>
           {
             if (!accountId) {
-              cb(new Error("keypair was not previously set with email and keypair.publicKeyPem"))
-              return
+              return Promise.reject(new Error("keypair was not previously set with email and keypair.publicKeyPem"))
             }
 
             const account = {
@@ -190,13 +176,12 @@ module.exports.create = function(options) {
             })
 
             return consulSave(`accounts/${accountId}`, account)
-              .then(() => cb(null, account))
+              .then(() => account)
           })
-          .catch(error => cb(error))
       },
 
       // Accounts
-      check: function(opts, cb) {
+      checkAsync: function(opts) {
         // opts.email // optional
         // opts.accountId // optional
         // opts.domains // optional
@@ -213,25 +198,22 @@ module.exports.create = function(options) {
             indexPromise = consulLoad(`accountIndices/${index}`)
         } else if (keypair.publicKeyJwk) {
             // TODO RSA.exportPublicPem(keypair)
-            cb(new Error("id from publicKeyJwk not yet implemented"))
-            return
+            return Promise.reject(new Error("id from publicKeyJwk not yet implemented"))
         } else if (opts.email) {
             indexPromise = consulLoad(`accountIndices/${opts.email}`)
         } else if (opts.domains && opts.domains[0]) {
             indexPromise = consulLoad(`accountIndices/${opts.domains[0]}`)
         } else {
             console.error(opts)
-            cb(new Error("MUST supply email or keypair.publicKeyPem or keypair.publicKeyJwk"))
-            return
+            return Promise.reject(new Error("MUST supply email or keypair.publicKeyPem or keypair.publicKeyJwk"))
         }
 
-        indexPromise
+        return indexPromise
           .then(index => consulLoad(`accountIndices/${index}`))
           .then(accountId =>
           {
             if (!accountId) {
-                cb(null, null)
-                return
+              return null
             }
 
             return Promise.all([
@@ -247,10 +229,9 @@ module.exports.create = function(options) {
 
                 account.keypair = result[1]
 
-                return cb(null, account)
+                return account
               })
           })
-          .catch(error => cb(error))
       }
   }
 
@@ -258,33 +239,26 @@ module.exports.create = function(options) {
 
   var certificates = {
     // Certificates
-    setKeypair: function(opts, keypair, cb) {
+    setKeypairAsync: function(opts, keypair) {
       // opts.domains
-
       if (!opts.domains || !opts.domains.length) {
-        cb(new Error("MUST use domains when setting Keypair"))
-        return
+        return Promise.reject(new Error("MUST use domains when setting Keypair"))
       }
       if (!opts.email) {
-        cb(new Error("MUST use email when setting Keypair"))
-        return
+        return Promise.reject(new Error("MUST use email when setting Keypair"))
       }
-      if (!opts.accountId) {
-        cb(new Error("MUST use accountId when setting Keypair"))
-        return
+      if (!opts.account.accountId) {
+        return Promise.reject(new Error("MUST use accountId when setting Keypair"))
       }
 
       if (!keypair.privateKeyJwk) {
-        cb(new Error("MUST use privateKeyJwk when setting Keypair"))
-        return
+        return Promise.reject(new Error("MUST use privateKeyJwk when setting Keypair"))
       }
       if (!keypair.privateKeyPem) {
-        cb(new Error("MUST use privateKeyPem when setting Keypair"))
-        return
+        return Promise.reject(new Error("MUST use privateKeyPem when setting Keypair"))
       }
       if (!keypair.publicKeyPem) {
-        cb(new Error("MUST use publicKeyPem when setting Keypair"))
-        return
+        return Promise.reject(new Error("MUST use publicKeyPem when setting Keypair"))
       }
 
       var subject = opts.domains[0]
@@ -302,28 +276,24 @@ module.exports.create = function(options) {
       */
 
       return Promise.all(todos)
-        .then(() => cb(null, keypair))
-        .catch(error => cb(error))
+        .then(() => keypair)
     },
     
     // Certificates
-    checkKeypair: function(opts, cb) {
+    checkKeypairAsync: function(opts, cb) {
       // opts.domains
       if (!opts.domains || !opts.domains.length) {
-          cb(new Error("MUST use domains when checking Keypair"))
-          return
+        return Promise.reject(new Error("MUST use domains when checking Keypair"))
       }
 
       var domain = opts.domains[0]
 
       return consulLoad(`certIndices/${domain}`)
         .then(subject => consulLoad(`certKeypairs/${subject}`))
-        .then(result => cb(null, result))
-        .catch(error => cb(error))
     },
 
     // Certificates
-    set: function(opts, certs, cb) {
+    setAsync: function(opts, certs) {
       // opts.domains
       // opts.email // optional
       // opts.accountId // optional
@@ -344,24 +314,21 @@ module.exports.create = function(options) {
       } else if (opts.email) {
           index = opts.email
       } else {
-          cb(new Error("MUST supply email or accountId"))
-          return
+          return Promise.reject(new Error("MUST supply email or accountId"))
       }
 
       return consulLoad(`accountIndices/${index}`)
         .then(accountId => consulLoad(`accounts/${accountId}`))
         .then(account => {
           if (!account) {
-              cb(new Error("account must exist"))
-              return
+              return Promise.reject(new Error("account must exist"))
           }
 
           return consulLoad(`accountIndices/${index}`)
         })
         .then((accountId) => {
           if (!accountId) {
-              cb(new Error("keypair was not previously set with email and keypair.publicKeyPem"))
-              return
+              return Promise.reject(new Error("keypair was not previously set with email and keypair.publicKeyPem"))
           }
 
           const todos = altnames.map((altname) => consulSave(`certIndices/${altname}`, subject))
@@ -380,13 +347,12 @@ module.exports.create = function(options) {
                 consulSave(`certificates/${subject}`, certs)
               ])
             })
-            .then(() => cb(null, certs))
+            .then(() => certs)
         })
-        .catch(error => cb(error))
     }
         // Certificates
         ,
-    check: function(opts, cb) {
+    checkAsync: function(opts, cb) {
       // You will be provided one of these (which should be tried in this order)
       // opts.domains
       // opts.email // optional
@@ -398,7 +364,6 @@ module.exports.create = function(options) {
       if (opts.domains) {
         return consulLoad(`certIndices/${opts.domains[0]}`)
           .then(subject => consulLoad(`certificates/${subject}`))
-          .then(result => cb(null, result))
       }
 
       if (opts.accountId) {
@@ -415,7 +380,6 @@ module.exports.create = function(options) {
               .then(subject => consulLoad(`certificates/${subject}`))
           }))
         })
-        .then(result => cb(null, result))
     }
 
   }
