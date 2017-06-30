@@ -107,7 +107,8 @@ module.exports.create = function(options) {
           consulSave(`accountIndices/${accountId}`, accountId),
           consulSave(`accountIndices/${opts.email}`, accountId),
           consulSave(`accountKeypairs/${accountId}`, keypair)
-        ]).then(() => consulLoad(`accounts/${accountId}`))
+        ])
+        .then(() => keypair)
       },
       
       // Accounts
