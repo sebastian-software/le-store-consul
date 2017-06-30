@@ -305,8 +305,8 @@ module.exports.create = function(options) {
       var index
       var accountId
       var account
-      var subject = certs.subject || opts.domains[0]
-      var altnames = certs.altnames || opts.domains
+      var subject = (certs && certs.subject) || opts.domains[0]
+      var altnames = (certs && certs.altnames) || opts.domains
       var accountCerts
 
       if (opts.accountId) {
