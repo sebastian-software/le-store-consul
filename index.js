@@ -12,7 +12,8 @@ module.exports.create = function(options) {
     secure: false,
     ca: null,
     basekey: "greenlock",
-    simulate: process.env.GREENLOCK_SIMULATE === "true"
+    simulate: process.env.GREENLOCK_SIMULATE === "true",
+    debug: false
   }
   const finalOptions = Object.assign({}, defaults, options)
   const consulOptions = {
@@ -81,6 +82,8 @@ module.exports.create = function(options) {
       // Accounts
       setKeypairAsync: function(opts, keypair)
       {
+        if (finalOptions.debug)
+          console.log("ac setKeypairAsync")
         // opts.email // non-optional
         // opts.keypair // non-optional
 
@@ -110,6 +113,8 @@ module.exports.create = function(options) {
       // Accounts
       checkKeypairAsync: function(opts)
       {
+        if (finalOptions.debug)
+          console.log("ac checkKeypairAsync")
         // opts.email // optional
         // opts.accountId // optional
 
@@ -134,6 +139,8 @@ module.exports.create = function(options) {
 
       // Accounts
       setAsync: function(opts, reg) {
+        if (finalOptions.debug)
+          console.log("ac setAsync")
         // opts.email
         // reg.keypair
         // reg.receipt // response from acme server
@@ -182,6 +189,8 @@ module.exports.create = function(options) {
 
       // Accounts
       checkAsync: function(opts) {
+        if (finalOptions.debug)
+          console.log("ac checkAsync")
         // opts.email // optional
         // opts.accountId // optional
         // opts.domains // optional
@@ -223,7 +232,8 @@ module.exports.create = function(options) {
               .then(result => {
                 const account = result[0]
                 if (!account) {
-                  console.log("No account for", accountId)
+                  if (finalOptions.debug)
+                    console.log("No account for", accountId)
                   return null
                 }
 
@@ -240,6 +250,8 @@ module.exports.create = function(options) {
   var certificates = {
     // Certificates
     setKeypairAsync: function(opts, keypair) {
+      if (finalOptions.debug)
+        console.log("ce setKeypairAsync")
       // opts.domains
       if (!opts.domains || !opts.domains.length) {
         return Promise.reject(new Error("MUST use domains when setting Keypair"))
@@ -281,6 +293,8 @@ module.exports.create = function(options) {
     
     // Certificates
     checkKeypairAsync: function(opts, cb) {
+      if (finalOptions.debug)
+        console.log("ce checkKeypairAsync")
       // opts.domains
       if (!opts.domains || !opts.domains.length) {
         return Promise.reject(new Error("MUST use domains when checking Keypair"))
@@ -294,6 +308,8 @@ module.exports.create = function(options) {
 
     // Certificates
     setAsync: function(opts, certs) {
+      if (finalOptions.debug)
+        console.log("ce setAsync")
       // opts.domains
       // opts.email // optional
       // opts.accountId // optional
@@ -353,6 +369,8 @@ module.exports.create = function(options) {
         // Certificates
         ,
     checkAsync: function(opts, cb) {
+      if (finalOptions.debug)
+        console.log("ce checkAsync")
       // You will be provided one of these (which should be tried in this order)
       // opts.domains
       // opts.email // optional
