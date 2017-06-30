@@ -224,7 +224,7 @@ module.exports.create = function(options) {
                 const account = result[0]
                 if (!account) {
                   console.log("No account for", accountId)
-                  return cb(null, null)
+                  return null
                 }
 
                 account.keypair = result[1]
