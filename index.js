@@ -311,19 +311,21 @@ module.exports.create = function(options) {
     setAsync: function(opts, certs) {
       if (finalOptions.debug)
         console.log("ce setAsync")
+
+      const pems = certs || opts.pems
       // opts.domains
       // opts.email // optional
       // opts.accountId // optional
 
-      // certs.privkey
-      // certs.cert
-      // certs.chain
+      // pems.privkey
+      // pems.cert
+      // pems.chain
 
       var index
       var accountId
       var account
-      var subject = (certs && certs.subject) || opts.domains[0]
-      var altnames = (certs && certs.altnames) || opts.domains
+      var subject = (pems && pems.subject) || opts.domains[0]
+      var altnames = (pems && pems.altnames) || opts.domains
       var accountCerts
 
       if (opts.accountId) {
@@ -361,10 +363,10 @@ module.exports.create = function(options) {
               // SAVE to the database, index the email address, the accountId, and alias the domains
               return Promise.all([
                 consulSave(`accountCerts/${accountId}`, accountCerts),
-                consulSave(`certificates/${subject}`, certs)
+                consulSave(`certificates/${subject}`, pems)
               ])
             })
-            .then(() => certs)
+            .then(() => pems)
         })
     }
         // Certificates
