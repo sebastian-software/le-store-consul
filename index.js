@@ -292,7 +292,7 @@ module.exports.create = function(options) {
     },
     
     // Certificates
-    checkKeypairAsync: function(opts, cb) {
+    checkKeypairAsync: function(opts) {
       if (finalOptions.debug)
         console.log("ce checkKeypairAsync")
       // opts.domains
@@ -368,7 +368,7 @@ module.exports.create = function(options) {
     }
         // Certificates
         ,
-    checkAsync: function(opts, cb) {
+    checkAsync: function(opts) {
       if (finalOptions.debug)
         console.log("ce checkAsync")
       // You will be provided one of these (which should be tried in this order)
